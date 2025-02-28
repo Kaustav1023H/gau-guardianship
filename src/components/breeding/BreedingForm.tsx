@@ -324,7 +324,7 @@ const BreedingForm = () => {
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <>Analyzing<span className="ml-1">...</span></>
+                    <>Analyzing<span className="loading-dots"></span></>
                   ) : (
                     <>
                       Get Breeding Recommendations
