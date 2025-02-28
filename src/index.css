@@ -174,3 +174,24 @@ html {
     background-position: 200% 0;
   }
 }
+
+/* Loading dots animation for the breeding form */
+@keyframes loading-dots {
+  0%, 20% {
+    content: ".";
+  }
+  40% {
+    content: "..";
+  }
+  60%, 100% {
+    content: "...";
+  }
+}
+
+span.loading-dots::after {
+  content: "...";
+  display: inline-block;
+  animation: loading-dots 1.5s infinite;
+  width: 1em;
+  text-align: left;
+}
