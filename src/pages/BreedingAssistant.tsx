@@ -13,7 +13,7 @@ const BreedingAssistant = () => {
           <div className="max-w-3xl mx-auto text-center mb-12">
             <div className="inline-flex items-center rounded-full px-3 py-1 text-sm bg-primary/10 text-primary mb-4">
               <Zap className="h-4 w-4 mr-2" />
-              Advanced AI Analysis
+              AI Analysis
             </div>
             <h1 className="text-3xl md:text-4xl font-display font-semibold mb-4">
               AI Breeding Assistant

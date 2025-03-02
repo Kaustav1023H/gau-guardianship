@@ -30,7 +30,7 @@ const featuresData = [
     icon: CloudCog,
     title: "Offline Capability",
     description: "Continue working in low-bandwidth areas with our offline-first approach.",
-    link: "#",
+    link: "/offline",
     color: "bg-blue-100 text-blue-700"
   }
 ];

@@ -98,9 +98,9 @@ const BreedingForm = () => {
     <section className="py-12 md:py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Enhanced Breeding Form */}
+          {/* AI Analysis Form */}
           <div>
-            <h2 className="text-3xl font-semibold mb-6">Advanced Breeding Analysis</h2>
+            <h2 className="text-3xl font-semibold mb-6">AI Analysis</h2>
             <GlassCard className="p-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -219,7 +219,7 @@ const BreedingForm = () => {
                   ) : (
                     <div className="flex items-center justify-center space-x-2">
                       <Zap className="w-4 h-4 mr-2" />
-                      <span>Generate Advanced Analysis</span>
+                      <span>Generate AI Analysis</span>
                     </div>
                   )}
                 </Button>
