@@ -2,7 +2,7 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import BreedingForm from "@/components/breeding/BreedingForm";
-import { Dna } from "lucide-react";
+import { Dna, Zap, BarChart3, LineChart } from "lucide-react";
 
 const BreedingAssistant = () => {
   return (
@@ -12,36 +12,44 @@ const BreedingAssistant = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <div className="inline-flex items-center rounded-full px-3 py-1 text-sm bg-primary/10 text-primary mb-4">
-              <Dna className="h-4 w-4 mr-2" />
-              AI-Powered Analysis
+              <Zap className="h-4 w-4 mr-2" />
+              Advanced AI Analysis
             </div>
             <h1 className="text-3xl md:text-4xl font-display font-semibold mb-4">
-              Breeding Assistant
+              AI Breeding Assistant
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Our AI-powered breeding assistant uses advanced genetic analysis to recommend 
-              optimal breeding pairs based on milk yield, disease resistance, and pedigree.
+              Our enhanced AI-powered breeding assistant uses comprehensive genetic analysis to provide 
+              detailed breeding recommendations, offspring predictions, and personalized guidance.
             </p>
           </div>
           
           <BreedingForm />
           
-          <div className="mt-12 p-6 rounded-lg bg-secondary/10 max-w-2xl mx-auto">
-            <h3 className="text-xl font-medium mb-3 text-secondary">How it works</h3>
-            <ol className="list-decimal ml-6 space-y-3 text-muted-foreground">
-              <li>
-                Enter your cow's details using the form or voice input
-              </li>
-              <li>
-                Our AI analyzes the data against our extensive genetic database
-              </li>
-              <li>
-                Receive tailored recommendations for optimal breeding pairs
-              </li>
-              <li>
-                Access detailed genetic compatibility reports and predictions
-              </li>
-            </ol>
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="bg-secondary/10 p-6 rounded-lg flex flex-col items-center text-center">
+              <Dna className="h-10 w-10 text-primary mb-4" />
+              <h3 className="text-xl font-medium mb-2">Genetic Analysis</h3>
+              <p className="text-muted-foreground text-sm">
+                Advanced genetic compatibility algorithms analyze over 150 traits to ensure optimal breeding pairs
+              </p>
+            </div>
+            
+            <div className="bg-secondary/10 p-6 rounded-lg flex flex-col items-center text-center">
+              <BarChart3 className="h-10 w-10 text-primary mb-4" />
+              <h3 className="text-xl font-medium mb-2">Offspring Predictions</h3>
+              <p className="text-muted-foreground text-sm">
+                Detailed predictions of offspring traits, health indicators, and productivity markers
+              </p>
+            </div>
+            
+            <div className="bg-secondary/10 p-6 rounded-lg flex flex-col items-center text-center">
+              <LineChart className="h-10 w-10 text-primary mb-4" />
+              <h3 className="text-xl font-medium mb-2">Success Optimization</h3>
+              <p className="text-muted-foreground text-sm">
+                Personalized breeding timing, techniques, and conditions to maximize successful outcomes
+              </p>
+            </div>
           </div>
         </div>
       </main>

@@ -1,90 +1,52 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 42 33% 98%;
-    --foreground: 30 25% 20%;
-
-    --card: 42 30% 96%;
-    --card-foreground: 30 25% 20%;
-
-    --popover: 42 30% 96%;
-    --popover-foreground: 30 25% 20%;
-
-    --primary: 32 35% 40%;
-    --primary-foreground: 42 30% 96%;
-
-    --secondary: 100 22% 45%;
-    --secondary-foreground: 42 30% 96%;
-
-    --muted: 42 20% 90%;
-    --muted-foreground: 30 25% 35%;
-
-    --accent: 42 35% 85%;
-    --accent-foreground: 30 25% 20%;
-
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 240 5.9% 10%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 42 30% 96%;
-
-    --border: 30 15% 85%;
-    --input: 30 15% 85%;
-    --ring: 32 35% 40%;
-
-    --radius: 0.75rem;
-
-    --sidebar-background: 42 33% 98%;
-    --sidebar-foreground: 30 25% 20%;
-    --sidebar-primary: 32 35% 40%;
-    --sidebar-primary-foreground: 42 30% 96%;
-    --sidebar-accent: 42 35% 85%;
-    --sidebar-accent-foreground: 30 25% 20%;
-    --sidebar-border: 30 15% 85%;
-    --sidebar-ring: 32 35% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 142.1 76.2% 36.3%;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 30 25% 10%;
-    --foreground: 42 30% 96%;
-
-    --card: 30 25% 15%;
-    --card-foreground: 42 30% 96%;
-
-    --popover: 30 25% 15%;
-    --popover-foreground: 42 30% 96%;
-
-    --primary: 32 35% 50%;
-    --primary-foreground: 30 25% 10%;
-
-    --secondary: 100 22% 45%;
-    --secondary-foreground: 30 25% 10%;
-
-    --muted: 30 25% 25%;
-    --muted-foreground: 42 30% 80%;
-
-    --accent: 30 25% 25%;
-    --accent-foreground: 42 30% 96%;
-
+    --background: 20 14.3% 4.1%;
+    --foreground: 0 0% 95%;
+    --card: 24 9.8% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 12 6.5% 15.1%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 42 30% 96%;
-
-    --border: 30 25% 25%;
-    --input: 30 25% 25%;
-    --ring: 32 35% 50%;
-
-    --sidebar-background: 30 25% 10%;
-    --sidebar-foreground: 42 30% 96%;
-    --sidebar-primary: 32 35% 50%;
-    --sidebar-primary-foreground: 30 25% 10%;
-    --sidebar-accent: 30 25% 25%;
-    --sidebar-accent-foreground: 42 30% 96%;
-    --sidebar-border: 30 25% 25%;
-    --sidebar-ring: 32 35% 50%;
+    --destructive-foreground: 0 85.7% 97.3%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 142.4 71.8% 29.2%;
   }
 }
 
@@ -92,106 +54,36 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-medium;
   }
 }
 
-/* Glass morphism styles */
-.glass {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+/* Custom Radial Progress Component */
+.radial-progress {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--primary));
+  overflow: hidden;
 }
 
-.glass-dark {
-  background: rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Custom animations */
-.hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-/* Page transitions */
-.page-enter {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.page-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms, transform 300ms;
-}
-
-.page-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.page-exit-active {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 300ms, transform 300ms;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Loading states */
-.loading-shimmer {
-  background: linear-gradient(90deg, 
-    rgba(255, 255, 255, 0) 0%, 
-    rgba(255, 255, 255, 0.2) 50%, 
-    rgba(255, 255, 255, 0) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* Loading dots animation for the breeding form */
-@keyframes loading-dots {
-  0%, 20% {
-    content: ".";
-  }
-  40% {
-    content: "..";
-  }
-  60%, 100% {
-    content: "...";
-  }
-}
-
-span.loading-dots::after {
-  content: "...";
-  display: inline-block;
-  animation: loading-dots 1.5s infinite;
-  width: 1em;
-  text-align: left;
+.radial-progress::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    hsl(var(--primary)) calc(var(--value) * 1% - 0.5%),
+    transparent calc(var(--value) * 1%)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--thickness)),
+    white calc(100% - var(--thickness) + 0.1%)
+  );
+  mask-mode: alpha;
 }
