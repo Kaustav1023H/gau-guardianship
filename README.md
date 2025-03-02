@@ -9,11 +9,10 @@ GauSeva uses cutting-edge technology to help farmers breed, maintain, and benefi
 
 This project is built with:
 
-- Vite
+- React 
 - TypeScript
-- React
-- shadcn-ui
 - Tailwind CSS
+- Vite
 
 ## Features
 
@@ -42,4 +41,3 @@ npm run build
 ```
 
 Then deploy the contents of the `dist` folder to your hosting provider of choice.
-

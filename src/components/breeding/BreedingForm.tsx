@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -119,7 +120,7 @@ const BreedingForm = () => {
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
                     <>
-                      Analyzing <span className="loading-dots"></span>
+                      Analyzing<span className="ml-1">...</span>
                     </>
                   ) : (
                     "Get Recommendation"
