@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  timestamp?: number;
 }
 
 const GeminiAssistant = () => {
@@ -22,7 +23,7 @@ const GeminiAssistant = () => {
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showApiInput, setShowApiInput] = useState(!hasGeminiApiKey());
+  const [showApiInput, setShowApiInput] = useState(false); // Changed to false by default
   const [models, setModels] = useState<string[]>(['gemini-pro']);
   const [selectedModel, setSelectedModel] = useState('gemini-pro');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -38,10 +39,9 @@ const GeminiAssistant = () => {
       }
     };
 
-    if (hasGeminiApiKey()) {
-      fetchModels();
-    }
-  }, [showApiInput]);
+    // Always fetch models since we have a default API key
+    fetchModels();
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -89,20 +89,28 @@ const GeminiAssistant = () => {
   };
 
   const formatMessage = (content: string) => {
-    // Basic markdown-like formatting
+    // Enhanced markdown-like formatting
     const formattedText = content
-      // Code blocks
+      // Code blocks with syntax highlighting
       .replace(/```(.+?)```/gs, '<pre><code>$1</code></pre>')
+      // Inline code
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      // Headers
+      .replace(/^# (.*$)/gm, '<h3 class="text-lg font-bold mt-2 mb-1">$1</h3>')
+      .replace(/^## (.*$)/gm, '<h4 class="text-md font-bold mt-2 mb-1">$1</h4>')
       // Bold
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       // Italic
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       // Lists
-      .replace(/^- (.*)/gm, '• $1')
+      .replace(/^- (.*)/gm, '<li>• $1</li>')
+      // Percentages (highlight differently)
+      .replace(/(\d+)%/g, '<span class="text-primary font-medium">$1%</span>')
       // Line breaks
+      .replace(/\n\n/g, '<br /><br />')
       .replace(/\n/g, '<br />');
 
-    return <div dangerouslySetInnerHTML={{ __html: formattedText }} />;
+    return <div dangerouslySetInnerHTML={{ __html: formattedText }} className="prose-sm" />;
   };
 
   const handleSendPrompt = async () => {
@@ -118,7 +126,11 @@ const GeminiAssistant = () => {
       return;
     }
 
-    const userMessage: Message = { role: 'user', content: prompt };
+    const userMessage: Message = { 
+      role: 'user', 
+      content: prompt,
+      timestamp: Date.now()
+    };
     setMessages((prev) => [...prev, userMessage]);
     setPrompt('');
     setLoading(true);
@@ -130,11 +142,24 @@ const GeminiAssistant = () => {
         content: msg.content
       }));
 
-      const response: GeminiResponse = await generateContent(prompt, selectedModel, historyContext);
+      // Add a system instruction to avoid consistent percentage outputs 
+      // and ensure varied analytical responses
+      const enhancedPrompt = `
+Task: Analyze the following input and provide an authentic, personalized analysis.
+Important: If you detect a request for compatibility, similarity, or percentage analysis, 
+ensure your response is tailored to the specific details provided, with percentages 
+that accurately reflect meaningful analysis rather than arbitrary numbers.
+Your analysis should be thorough, specific to the details provided, and avoid generic templates.
+
+User input: ${prompt}
+      `.trim();
+
+      const response: GeminiResponse = await generateContent(enhancedPrompt, selectedModel, historyContext);
       
       const assistantMessage: Message = {
         role: 'assistant',
         content: response.text,
+        timestamp: Date.now()
       };
       
       setMessages((prev) => [...prev, assistantMessage]);
@@ -286,6 +311,11 @@ const GeminiAssistant = () => {
                           ? formatMessage(message.content) 
                           : message.content}
                       </div>
+                      {message.timestamp && (
+                        <div className="text-xs opacity-60 mt-1">
+                          {new Date(message.timestamp).toLocaleTimeString()}
+                        </div>
+                      )}
                       {message.role === 'assistant' && (
                         <Button 
                           variant="ghost" 

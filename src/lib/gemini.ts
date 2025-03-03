@@ -10,8 +10,12 @@ export interface GeminiResponse {
   finishReason: string;
 }
 
+// Use a default API key so users don't need to enter one
+// Note: In a production environment, this should be stored securely
+const DEFAULT_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
+
 // Store API key in memory (for frontend-only apps)
-let apiKey = localStorage.getItem('gemini-api-key') || '';
+let apiKey = localStorage.getItem('gemini-api-key') || DEFAULT_API_KEY;
 
 // Set API key
 export const setGeminiApiKey = (key: string) => {
@@ -54,6 +58,9 @@ export const generateContent = async (
       parts: [{ text: prompt }]
     });
 
+    // Add randomization to temperature for more varied responses
+    const dynamicTemperature = 0.7 + (Math.random() * 0.3);
+    
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
@@ -64,8 +71,8 @@ export const generateContent = async (
         body: JSON.stringify({
           contents: messages,
           generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1000,
+            temperature: dynamicTemperature,
+            maxOutputTokens: 2000, // Increased token limit for more detailed responses
             topP: 0.95,
             topK: 40
           },
@@ -79,6 +86,7 @@ export const generateContent = async (
     }
 
     const data = await response.json();
+    console.log('Gemini API response:', data); // Log the raw response for debugging
     
     // Extract the response text from the Gemini response structure
     const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -125,4 +133,3 @@ export const listGeminiModels = async (): Promise<string[]> => {
     return ['gemini-pro', 'gemini-pro-vision'];
   }
 };
-
