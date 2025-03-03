@@ -8,7 +8,6 @@ import { generateContent, hasGeminiApiKey, setGeminiApiKey, listGeminiModels, Ge
 import { Sparkles, Send, Bot, Key, Trash2, Copy, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
 interface Message {
@@ -23,7 +22,7 @@ const GeminiAssistant = () => {
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showApiInput, setShowApiInput] = useState(false); // Changed to false by default
+  const [showApiInput, setShowApiInput] = useState(false); // Keep hidden by default
   const [models, setModels] = useState<string[]>(['gemini-pro']);
   const [selectedModel, setSelectedModel] = useState('gemini-pro');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -116,11 +115,12 @@ const GeminiAssistant = () => {
   const handleSendPrompt = async () => {
     if (!prompt.trim()) return;
 
+    // Now using default API key, so this check is less likely to fail
     if (!hasGeminiApiKey()) {
       setShowApiInput(true);
       hookToast({
         title: 'API Key Required',
-        description: 'Please set your Google Gemini API key first',
+        description: 'The default API key is not working. Please set your own Google Gemini API key.',
         variant: 'destructive',
       });
       return;
@@ -142,16 +142,20 @@ const GeminiAssistant = () => {
         content: msg.content
       }));
 
-      // Add a system instruction to avoid consistent percentage outputs 
-      // and ensure varied analytical responses
+      // Enhanced system prompt to ensure varied, realistic responses
       const enhancedPrompt = `
-Task: Analyze the following input and provide an authentic, personalized analysis.
-Important: If you detect a request for compatibility, similarity, or percentage analysis, 
-ensure your response is tailored to the specific details provided, with percentages 
-that accurately reflect meaningful analysis rather than arbitrary numbers.
-Your analysis should be thorough, specific to the details provided, and avoid generic templates.
+You are a highly intelligent AI assistant powered by Google's Gemini model. 
+Please analyze the following input thoughtfully and provide a detailed, context-specific response.
 
-User input: ${prompt}
+IMPORTANT GUIDELINES:
+1. NEVER use generic templates or predetermined percentage values.
+2. If asked for analysis/compatibility, provide a realistic assessment with specific reasoning.
+3. Avoid arbitrary percentage ratings unless specifically justified by analysis.
+4. Each response should be unique, factual, and directly relevant to the query.
+5. Use specific details from the user's input to personalize your response.
+6. Be helpful, accurate, and authentic in your analysis.
+
+User query: ${prompt}
       `.trim();
 
       const response: GeminiResponse = await generateContent(enhancedPrompt, selectedModel, historyContext);
@@ -219,9 +223,9 @@ User input: ${prompt}
           {showApiInput && (
             <GlassCard className="mb-6">
               <div className="flex flex-col space-y-4">
-                <h2 className="text-lg font-semibold">Google Gemini API Key</h2>
+                <h2 className="text-lg font-semibold">Custom Google Gemini API Key</h2>
                 <p className="text-sm text-muted-foreground">
-                  Enter your Google Gemini API key to use the assistant. You can get one from the{' '}
+                  A default API key is already provided, but you can use your own from{' '}
                   <a
                     href="https://ai.google.dev/"
                     target="_blank"
@@ -230,13 +234,14 @@ User input: ${prompt}
                   >
                     Google AI Studio
                   </a>
+                  {' '}if you prefer.
                 </p>
                 <div className="flex items-center gap-2">
                   <input
                     type="password"
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    placeholder="Enter your API key"
+                    placeholder="Enter your own API key (optional)"
                     className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <button
@@ -374,8 +379,7 @@ User input: ${prompt}
             <h3 className="font-medium mb-2">About Google Gemini</h3>
             <p className="text-muted-foreground">
               Google Gemini is a family of multimodal large language models developed by Google DeepMind.
-              This integration allows you to interact with Gemini models directly within this application.
-              Your API key is stored locally in your browser and never sent to our servers.
+              This integration includes a built-in API key for immediate use. You can also provide your own API key if you need higher rate limits or additional features.
             </p>
           </GlassCard>
         </div>
