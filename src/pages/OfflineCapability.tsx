@@ -108,11 +108,11 @@ const OfflineCapability = () => {
     setSyncProgress(0);
     
     // Simulate clearing cache
-    const clearInterval = setInterval(() => {
+    const clearCacheInterval = setInterval(() => {
       setSyncProgress(prev => {
         const newProgress = prev + Math.random() * 25;
         if (newProgress >= 100) {
-          clearInterval(clearInterval);
+          clearInterval(clearCacheInterval);
           setSyncStatus('online');
           setCachedData({
             records: 0,
