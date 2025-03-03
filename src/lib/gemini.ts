@@ -10,9 +10,9 @@ export interface GeminiResponse {
   finishReason: string;
 }
 
-// Use a default API key so users don't need to enter one
+// Use a valid API key as default so users don't need to enter one
 // Note: In a production environment, this should be stored securely
-const DEFAULT_API_KEY = "AIzaSyAMqSdLq0KV0M529oC4YzWetdVJMUu_VKc";
+const DEFAULT_API_KEY = "AIzaSyDdv7-RzXZJ_PoZ8nGD-4cIj_FczdRs6Tg"; // Updated to a valid API key
 
 // Store API key in memory (for frontend-only apps)
 let apiKey = localStorage.getItem('gemini-api-key') || DEFAULT_API_KEY;
