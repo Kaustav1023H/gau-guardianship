@@ -10,6 +10,7 @@ import BreedingAssistant from "./pages/BreedingAssistant";
 import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
 import OfflineCapability from "./pages/OfflineCapability";
+import GeminiAssistant from "./pages/GeminiAssistant";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient outside the component to avoid React hook issues
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/offline" element={<OfflineCapability />} />
+                <Route path="/gemini" element={<GeminiAssistant />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
