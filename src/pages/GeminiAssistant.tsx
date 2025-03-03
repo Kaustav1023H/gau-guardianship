@@ -5,7 +5,11 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import GlassCard from '@/components/ui/GlassCard';
 import { generateContent, hasGeminiApiKey, setGeminiApiKey, listGeminiModels, GeminiResponse } from '@/lib/gemini';
-import { Sparkles, Send, Bot, ArrowDown, Key } from 'lucide-react';
+import { Sparkles, Send, Bot, Key, Trash2, Copy, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -13,7 +17,7 @@ interface Message {
 }
 
 const GeminiAssistant = () => {
-  const { toast } = useToast();
+  const { toast: hookToast } = useToast();
   const [apiKey, setApiKey] = useState('');
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -22,6 +26,7 @@ const GeminiAssistant = () => {
   const [models, setModels] = useState<string[]>(['gemini-pro']);
   const [selectedModel, setSelectedModel] = useState('gemini-pro');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const promptInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchModels = async () => {
@@ -36,7 +41,7 @@ const GeminiAssistant = () => {
     if (hasGeminiApiKey()) {
       fetchModels();
     }
-  }, []);
+  }, [showApiInput]);
 
   useEffect(() => {
     scrollToBottom();
@@ -48,7 +53,7 @@ const GeminiAssistant = () => {
 
   const handleSaveApiKey = () => {
     if (!apiKey.trim()) {
-      toast({
+      hookToast({
         title: 'API Key Required',
         description: 'Please enter your Google Gemini API key',
         variant: 'destructive',
@@ -59,7 +64,7 @@ const GeminiAssistant = () => {
     const success = setGeminiApiKey(apiKey);
     if (success) {
       setShowApiInput(false);
-      toast({
+      hookToast({
         title: 'API Key Saved',
         description: 'Your Google Gemini API key has been saved',
       });
@@ -67,12 +72,45 @@ const GeminiAssistant = () => {
     }
   };
 
+  const handleCopyText = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast('Copied to clipboard', {
+      position: 'bottom-right',
+    });
+  };
+
+  const handleClearChat = () => {
+    if (messages.length > 0) {
+      setMessages([]);
+      toast('Chat history cleared', {
+        position: 'bottom-right',
+      });
+    }
+  };
+
+  const formatMessage = (content: string) => {
+    // Basic markdown-like formatting
+    const formattedText = content
+      // Code blocks
+      .replace(/```(.+?)```/gs, '<pre><code>$1</code></pre>')
+      // Bold
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      // Lists
+      .replace(/^- (.*)/gm, '• $1')
+      // Line breaks
+      .replace(/\n/g, '<br />');
+
+    return <div dangerouslySetInnerHTML={{ __html: formattedText }} />;
+  };
+
   const handleSendPrompt = async () => {
     if (!prompt.trim()) return;
 
     if (!hasGeminiApiKey()) {
       setShowApiInput(true);
-      toast({
+      hookToast({
         title: 'API Key Required',
         description: 'Please set your Google Gemini API key first',
         variant: 'destructive',
@@ -86,7 +124,13 @@ const GeminiAssistant = () => {
     setLoading(true);
 
     try {
-      const response: GeminiResponse = await generateContent(prompt, selectedModel);
+      // Create context from previous messages for conversation memory
+      const historyContext = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      const response: GeminiResponse = await generateContent(prompt, selectedModel, historyContext);
       
       const assistantMessage: Message = {
         role: 'assistant',
@@ -94,6 +138,11 @@ const GeminiAssistant = () => {
       };
       
       setMessages((prev) => [...prev, assistantMessage]);
+      
+      // Focus back on input after response
+      setTimeout(() => {
+        promptInputRef.current?.focus();
+      }, 100);
     } catch (error) {
       let errorMessage = 'Failed to generate response';
       
@@ -101,7 +150,7 @@ const GeminiAssistant = () => {
         errorMessage = error.message;
       }
       
-      toast({
+      hookToast({
         title: 'Error',
         description: errorMessage,
         variant: 'destructive',
@@ -119,14 +168,27 @@ const GeminiAssistant = () => {
           <div className="flex items-center mb-6">
             <Bot className="w-8 h-8 text-primary mr-3" />
             <h1 className="text-3xl font-bold">Gemini Assistant</h1>
-            {!showApiInput && (
-              <button
-                onClick={() => setShowApiInput(true)}
-                className="ml-auto flex items-center text-sm bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1 rounded-full"
+            <div className="ml-auto flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+                onClick={handleClearChat}
+                disabled={messages.length === 0}
               >
-                <Key className="w-3 h-3 mr-1" /> API Key
-              </button>
-            )}
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Clear Chat</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+                onClick={() => setShowApiInput(!showApiInput)}
+              >
+                <Key className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">API Key</span>
+              </Button>
+            </div>
           </div>
 
           {showApiInput && (
@@ -165,18 +227,34 @@ const GeminiAssistant = () => {
 
           <GlassCard className="mb-6 p-0 overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="font-medium">Select Model</h2>
-              <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-                className="bg-transparent border border-gray-300 rounded-md px-2 py-1 text-sm"
-              >
-                {models.map((model) => (
-                  <option key={model} value={model}>
-                    {model}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center gap-2">
+                <h2 className="font-medium">Model:</h2>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="bg-transparent border border-gray-300 rounded-md px-2 py-1 text-sm"
+                >
+                  {models.map((model) => (
+                    <option key={model} value={model}>
+                      {model}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Info className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">
+                      This assistant maintains conversation context for more coherent responses.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <div className="h-[400px] overflow-y-auto p-4 space-y-4">
               {messages.length === 0 ? (
@@ -185,6 +263,7 @@ const GeminiAssistant = () => {
                   <h3 className="text-lg font-medium mb-2">Gemini Assistant</h3>
                   <p className="max-w-md">
                     Ask any question and get AI-powered answers using Google's Gemini model.
+                    The assistant remembers your conversation for context-aware responses.
                   </p>
                 </div>
               ) : (
@@ -196,13 +275,27 @@ const GeminiAssistant = () => {
                     }`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-xl p-3 ${
+                      className={`group relative max-w-[80%] rounded-xl p-3 ${
                         message.role === 'user'
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted'
                       }`}
                     >
-                      <div className="whitespace-pre-wrap">{message.content}</div>
+                      <div className="whitespace-pre-wrap">
+                        {message.role === 'assistant' 
+                          ? formatMessage(message.content) 
+                          : message.content}
+                      </div>
+                      {message.role === 'assistant' && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-background opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleCopyText(message.content)}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))
@@ -234,6 +327,7 @@ const GeminiAssistant = () => {
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder="Type your message..."
                   className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  ref={promptInputRef}
                 />
                 <button
                   type="submit"

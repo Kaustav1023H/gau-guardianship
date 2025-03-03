@@ -34,13 +34,26 @@ export const clearGeminiApiKey = () => {
 // Generate content with Gemini
 export const generateContent = async (
   prompt: string,
-  model: string = 'gemini-pro'
+  model: string = 'gemini-pro',
+  historyContext: Array<{ role: string; content: string }> = []
 ): Promise<GeminiResponse> => {
   if (!apiKey) {
     throw new Error('Gemini API key not set');
   }
 
   try {
+    // Format the history context into Gemini's expected format
+    const messages = historyContext.map(item => ({
+      role: item.role === 'user' ? 'user' : 'model',
+      parts: [{ text: item.content }]
+    }));
+
+    // Add the current prompt
+    messages.push({
+      role: 'user',
+      parts: [{ text: prompt }]
+    });
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
@@ -49,18 +62,12 @@ export const generateContent = async (
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
-            },
-          ],
+          contents: messages,
           generationConfig: {
             temperature: 0.7,
             maxOutputTokens: 1000,
+            topP: 0.95,
+            topK: 40
           },
         }),
       }
@@ -118,3 +125,4 @@ export const listGeminiModels = async (): Promise<string[]> => {
     return ['gemini-pro', 'gemini-pro-vision'];
   }
 };
+
