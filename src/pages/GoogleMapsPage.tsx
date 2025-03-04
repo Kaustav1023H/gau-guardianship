@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/layout/Navbar';
@@ -13,7 +12,16 @@ import {
   getAllUniqueServices,
   indigenousCowBreeds
 } from '@/lib/google-maps';
-import { Map, Navigation, Info, Home, MapPin, Filter, Search, Cow } from 'lucide-react';
+import { 
+  Map, 
+  Navigation, 
+  Info, 
+  Home, 
+  MapPin, 
+  Filter, 
+  Search, 
+  Leaf 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { 
@@ -38,13 +46,10 @@ const GoogleMapsPage = () => {
   const [services, setServices] = useState<string[]>([]);
 
   useEffect(() => {
-    // Get all unique services
     setServices(getAllUniqueServices());
     
-    // Initialize Google Maps
     initializeGoogleMaps(undefined, () => {
       if (mapRef.current) {
-        // Create map centered on India
         const indiaCenter = { lat: 20.5937, lng: 78.9629 };
         googleMapRef.current = new window.google.maps.Map(mapRef.current, {
           center: indiaCenter,
@@ -55,13 +60,11 @@ const GoogleMapsPage = () => {
           fullscreenControl: true,
         });
 
-        // Add markers based on active tab
         showMarkersBasedOnTab();
         setLoading(false);
       }
     });
 
-    // Get user's location if available
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -71,11 +74,9 @@ const GoogleMapsPage = () => {
           };
           setUserLocation(userLoc);
           
-          // Find nearest sanctuaries
           const nearest = findNearestSanctuaries(userLoc);
           setNearestSanctuaries(nearest);
           
-          // Center map on user location and add marker
           if (googleMapRef.current) {
             googleMapRef.current.setCenter(userLoc);
             googleMapRef.current.setZoom(8);
@@ -107,14 +108,12 @@ const GoogleMapsPage = () => {
     }
 
     return () => {
-      // Clear markers on unmount
       if (markersRef.current) {
         markersRef.current.forEach(marker => marker.setMap(null));
       }
     };
   }, []);
 
-  // Effect to handle tab changes
   useEffect(() => {
     showMarkersBasedOnTab();
   }, [activeTab, selectedService]);
@@ -122,13 +121,11 @@ const GoogleMapsPage = () => {
   const showMarkersBasedOnTab = () => {
     if (!googleMapRef.current) return;
     
-    // Clear existing markers
     if (markersRef.current) {
       markersRef.current.forEach(marker => marker.setMap(null));
     }
     
     if (activeTab === 'sanctuaries') {
-      // Filter sanctuaries if necessary
       const displayedSanctuaries = selectedService === 'all' 
         ? cowSanctuaries 
         : filterSanctuariesByService(selectedService);
@@ -150,7 +147,6 @@ const GoogleMapsPage = () => {
           },
         });
         
-        // Add info window with detailed information
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
             <div style="padding: 12px; max-width: 300px;">
@@ -174,7 +170,6 @@ const GoogleMapsPage = () => {
         return marker;
       });
     } else if (activeTab === 'breeds') {
-      // Show indigenous cow breeds
       markersRef.current = indigenousCowBreeds.map(breed => {
         const marker = new window.google.maps.Marker({
           position: { lat: breed.lat, lng: breed.lng },
@@ -195,7 +190,6 @@ const GoogleMapsPage = () => {
           },
         });
         
-        // Add info window with breed details
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
             <div style="padding: 12px; max-width: 300px;">
@@ -215,7 +209,6 @@ const GoogleMapsPage = () => {
       });
     }
     
-    // Adjust map bounds to fit all markers
     if (markersRef.current.length > 0 && googleMapRef.current) {
       const bounds = new window.google.maps.LatLngBounds();
       markersRef.current.forEach(marker => {
@@ -223,7 +216,6 @@ const GoogleMapsPage = () => {
       });
       googleMapRef.current.fitBounds(bounds);
       
-      // Don't zoom in too far
       const listener = window.google.maps.event.addListener(googleMapRef.current, "idle", function() { 
         if (googleMapRef.current.getZoom() > 7) googleMapRef.current.setZoom(7); 
         window.google.maps.event.removeListener(listener); 
@@ -239,7 +231,6 @@ const GoogleMapsPage = () => {
       return;
     }
     
-    // Open Google Maps directions in a new tab
     const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${sanctuary.lat},${sanctuary.lng}`;
     window.open(url, '_blank');
   };
@@ -253,7 +244,6 @@ const GoogleMapsPage = () => {
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    // Reset service filter when switching to breeds tab
     if (value === 'breeds') {
       setSelectedService('all');
     }
@@ -291,7 +281,7 @@ const GoogleMapsPage = () => {
                 <span>Cow Sanctuaries</span>
               </TabsTrigger>
               <TabsTrigger value="breeds" className="flex items-center gap-1">
-                <Cow className="w-4 h-4" />
+                <Leaf className="w-4 h-4" />
                 <span>Indigenous Breeds</span>
               </TabsTrigger>
             </TabsList>
