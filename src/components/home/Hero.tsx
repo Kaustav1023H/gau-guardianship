@@ -48,15 +48,6 @@ const Hero = () => {
                 View Impact
               </Link>
             </div>
-            
-            <div className="flex flex-wrap gap-2 pt-2">
-              <Link
-                to="/gemini"
-                className="inline-flex items-center text-sm px-3 py-1 rounded-full bg-gauseva-earth/10 text-gauseva-earth hover:bg-gauseva-earth/20 transition-colors"
-              >
-                <span className="mr-1">✨</span> Try Gemini AI Assistant
-              </Link>
-            </div>
           </div>
           
           <div className="relative flex justify-center">
