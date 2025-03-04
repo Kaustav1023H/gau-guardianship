@@ -52,24 +52,29 @@ const Features = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {featuresData.map((feature, index) => (
             <Link to={feature.link} key={index}>
-              <GlassCard 
-                className="h-full transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-lg"
-                hoverEffect={true}
+              <div 
+                className="animate-fade-in" 
+                style={{ animationDelay: `${index * 0.15}s` }}
               >
-                <div className="flex flex-col items-center text-center h-full">
-                  <div className={cn("p-3 rounded-full mb-5", feature.color)}>
-                    <feature.icon className="h-6 w-6" />
+                <GlassCard 
+                  className="h-full transition-all duration-300 hover:translate-y-[-8px] hover:shadow-xl group"
+                  hoverEffect={true}
+                >
+                  <div className="flex flex-col items-center text-center h-full">
+                    <div className={cn("p-3 rounded-full mb-5 transition-all duration-300 group-hover:scale-110", feature.color)}>
+                      <feature.icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-xl font-medium mb-3">{feature.title}</h3>
+                    <p className="text-muted-foreground mb-4 flex-grow">
+                      {feature.description}
+                    </p>
+                    <span className="text-primary font-medium inline-flex items-center group-hover:gap-2 transition-all">
+                      Learn more
+                      <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </span>
                   </div>
-                  <h3 className="text-xl font-medium mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground mb-4 flex-grow">
-                    {feature.description}
-                  </p>
-                  <span className="text-primary font-medium inline-flex items-center">
-                    Learn more
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </span>
-                </div>
-              </GlassCard>
+                </GlassCard>
+              </div>
             </Link>
           ))}
         </div>

@@ -1,5 +1,5 @@
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import GlassCard from "../ui/GlassCard";
 
@@ -48,12 +48,17 @@ const Hero = () => {
                 View Impact
               </Link>
             </div>
+            
+            <div className="inline-flex items-center text-sm text-muted-foreground pt-2 animate-fade-in" style={{ animationDelay: "0.6s" }}>
+              <Download className="mr-2 h-4 w-4" /> 
+              Download our app for offline usage
+            </div>
           </div>
           
           <div className="relative flex justify-center">
             <div className="w-full max-w-md aspect-square relative animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <div className="absolute inset-0 bg-gradient-to-br from-gauseva-cream to-gauseva-sand rounded-3xl -rotate-6 transform-gpu"></div>
-              <GlassCard className="w-full h-full flex items-center justify-center relative z-10 rounded-3xl bg-white/60 backdrop-blur-md shadow-xl border border-white/40">
+              <GlassCard className="w-full h-full flex items-center justify-center relative z-10 rounded-3xl bg-white/60 backdrop-blur-md shadow-xl border border-white/40 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
                 <div className="text-center p-6">
                   <div className="w-48 h-48 mx-auto mb-6 bg-gauseva-earth/10 rounded-full flex items-center justify-center animate-float" style={{ animationDelay: "-3s" }}>
                     <span className="text-7xl">🐄</span>
