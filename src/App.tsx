@@ -33,7 +33,7 @@ function App() {
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/offline" element={<OfflineCapability />} />
                 <Route path="/google-maps" element={<GoogleMapsPage />} />
-                <Route path="/gemini" element={<GoogleMapsPage />} /> {/* Redirect old path */}
+                {/* No longer redirecting old path, changing to a dedicated route */}
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

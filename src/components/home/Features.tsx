@@ -1,5 +1,5 @@
 
-import { Dna, CloudCog, Leaf, ShoppingBag, ArrowRight } from "lucide-react";
+import { Dna, Map, ShoppingBag, CloudCog, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import GlassCard from "../ui/GlassCard";
 import { cn } from "@/lib/utils";
@@ -13,10 +13,10 @@ const featuresData = [
     color: "bg-amber-100 text-amber-800"
   },
   {
-    icon: Leaf,
-    title: "Environmental Impact",
-    description: "Track your biogas production and CO2 offset in real-time with our intuitive dashboard.",
-    link: "/dashboard",
+    icon: Map,
+    title: "GauSeva Sanctuary Map",
+    description: "Find nearby cow sanctuaries across India using Google Maps integration with real-time location data.",
+    link: "/google-maps",
     color: "bg-green-100 text-green-800"
   },
   {
@@ -29,7 +29,7 @@ const featuresData = [
   {
     icon: CloudCog,
     title: "Offline Capability",
-    description: "Continue working in low-bandwidth areas with our offline-first approach.",
+    description: "Continue working in low-bandwidth areas with our offline-first approach using Google Workbox.",
     link: "/offline",
     color: "bg-blue-100 text-blue-700"
   }
