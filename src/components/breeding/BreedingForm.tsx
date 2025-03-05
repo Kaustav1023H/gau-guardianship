@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -196,9 +195,26 @@ const BreedingForm = () => {
 
   // Advanced AI analysis algorithm
   const performAdvancedAnalysis = async () => {
-    // Simulate network request and complex analysis
-    const cowBreedData = BREED_DATA[formData.cowBreed as keyof typeof BREED_DATA] || {};
-    const bullBreedData = BREED_DATA[formData.bullBreed as keyof typeof BREED_DATA] || {};
+    // Get breed data safely with defaults if not found
+    const cowBreedData = BREED_DATA[formData.cowBreed as keyof typeof BREED_DATA] || {
+      milkYield: { min: 3000, max: 4000 },
+      growth: "Medium",
+      diseaseResistance: 75,
+      climateAdaptation: "Adaptable",
+      heatToleranceScore: 70,
+      feedingEfficiency: 75,
+      reproductiveEfficiency: 75
+    };
+    
+    const bullBreedData = BREED_DATA[formData.bullBreed as keyof typeof BREED_DATA] || {
+      milkYield: { min: 2500, max: 3500 },
+      growth: "Medium",
+      diseaseResistance: 75,
+      climateAdaptation: "Adaptable",
+      heatToleranceScore: 70,
+      feedingEfficiency: 75,
+      reproductiveEfficiency: 75
+    };
     
     // Calculate genetic compatibility based on breed profiles
     const geneticCompatibility = calculateGeneticCompatibility(cowBreedData, bullBreedData);
@@ -209,7 +225,10 @@ const BreedingForm = () => {
     
     // Calculate optimal breeding factors
     const ageCompatibility = calculateAgeCompatibility(Number(formData.cowAge));
-    const weightRatio = Number(formData.bullWeight) / Number(formData.cowWeight);
+    
+    const cowWeight = Number(formData.cowWeight) || 400;
+    const bullWeight = Number(formData.bullWeight) || 600;
+    const weightRatio = bullWeight / cowWeight;
     const weightCompatibility = calculateWeightCompatibility(weightRatio);
     
     // Calculate overall compatibility score
@@ -373,14 +392,26 @@ const BreedingForm = () => {
       ];
     }
     
-    // Realistic trait probability calculations
-    const heatTolerance = Math.round((cowBreed.heatToleranceScore * 0.6 + bullBreed.heatToleranceScore * 0.4) * (1 - healthRiskFactor/200));
-    const diseaseResistance = Math.round((cowBreed.diseaseResistance * 0.5 + bullBreed.diseaseResistance * 0.5) * (1 - healthRiskFactor/200));
-    const feedEfficiency = Math.round((cowBreed.feedingEfficiency * 0.45 + bullBreed.feedingEfficiency * 0.55) * (1 - healthRiskFactor/300));
+    // Safely access properties with defaults
+    const cowHeatTolerance = cowBreed.heatToleranceScore || 70;
+    const bullHeatTolerance = bullBreed.heatToleranceScore || 70;
+    const cowDiseaseResistance = cowBreed.diseaseResistance || 75;
+    const bullDiseaseResistance = bullBreed.diseaseResistance || 75;
+    const cowFeedEfficiency = cowBreed.feedingEfficiency || 75;
+    const bullFeedEfficiency = bullBreed.feedingEfficiency || 75;
+    
+    // Realistic trait probability calculations with safe defaults
+    const heatTolerance = Math.round((cowHeatTolerance * 0.6 + bullHeatTolerance * 0.4) * (1 - healthRiskFactor/200));
+    const diseaseResistance = Math.round((cowDiseaseResistance * 0.5 + bullDiseaseResistance * 0.5) * (1 - healthRiskFactor/200));
+    const feedEfficiency = Math.round((cowFeedEfficiency * 0.45 + bullFeedEfficiency * 0.55) * (1 - healthRiskFactor/300));
     
     // Determine probabilities for other traits
     let milkQuality = 70;
-    if (cowBreed.milkYield.max > 7000 || bullBreed.milkYield.max > 7000) {
+    // Safely check milk yield with defaults
+    const cowMaxYield = cowBreed.milkYield?.max || 4000;
+    const bullMaxYield = bullBreed.milkYield?.max || 3000;
+    
+    if (cowMaxYield > 7000 || bullMaxYield > 7000) {
       milkQuality = 85;
     }
     
@@ -399,9 +430,13 @@ const BreedingForm = () => {
     // This is a simplified model - in reality, genetics are more complex
     if (!cowBreed || !bullBreed) return 51; // Default male ratio
     
+    // Safely access properties with defaults
+    const cowReproEfficiency = cowBreed.reproductiveEfficiency || 75;
+    const bullReproEfficiency = bullBreed.reproductiveEfficiency || 75;
+    
     // Slight variation based on breed characteristics
     const baseRatio = 51; // Slightly more males on average
-    const variation = (cowBreed.reproductiveEfficiency - bullBreed.reproductiveEfficiency) / 10;
+    const variation = (cowReproEfficiency - bullReproEfficiency) / 10;
     
     return Math.round(baseRatio + variation);
   };
@@ -409,9 +444,12 @@ const BreedingForm = () => {
   const predictMilkYield = (cowBreed: any, bullBreed: any): string => {
     if (!cowBreed || !bullBreed) return "Average (10-15 liters/day)";
     
-    // Calculate predicted milk yield
-    const cowInfluence = cowBreed.milkYield.max * 0.7; // Cow has more influence on milk traits
-    const bullInfluence = (bullBreed.milkYield?.max || 0) * 0.3;
+    // Calculate predicted milk yield with safe defaults
+    const cowMaxYield = cowBreed.milkYield?.max || 4000;
+    const bullMaxYield = bullBreed.milkYield?.max || 3000;
+    
+    const cowInfluence = cowMaxYield * 0.7; // Cow has more influence on milk traits
+    const bullInfluence = bullMaxYield * 0.3;
     const predictedYield = (cowInfluence + bullInfluence) * 0.85; // Regression to mean
     
     if (predictedYield > 7000) {
@@ -472,8 +510,8 @@ const BreedingForm = () => {
     }
     
     // Calculate based on parental weights and breed characteristics
-    const cowWeightNum = Number(cowWeight);
-    const bullWeightNum = Number(bullWeight);
+    const cowWeightNum = Number(cowWeight) || 400;
+    const bullWeightNum = Number(bullWeight) || 600;
     
     // Calf birth weight is typically 5-10% of cow weight, influenced by bull
     const cowFactor = cowWeightNum * 0.07;
