@@ -60,37 +60,54 @@ const Hero = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-gauseva-cream to-gauseva-sand rounded-3xl -rotate-6 transform-gpu"></div>
               <GlassCard className="w-full h-full flex items-center justify-center relative z-10 rounded-3xl bg-white/60 backdrop-blur-md shadow-xl border border-white/40 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
                 <div className="text-center p-6">
-                  <div className="relative w-64 h-64 mx-auto mb-6 overflow-hidden rounded-lg">
-                    <img 
-                      src="https://images.unsplash.com/photo-1493962853295-0fd70327578a" 
-                      alt="Indigenous cow" 
-                      className="object-cover w-full h-full transition-transform duration-10000 hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gauseva-bark/30 to-transparent"></div>
+                  <div className="w-60 h-60 mx-auto mb-6 bg-gauseva-earth/10 rounded-full flex items-center justify-center animate-float overflow-hidden relative" style={{ animationDelay: "-3s" }}>
+                    <div className="absolute inset-0 bg-gradient-radial from-gauseva-cream/80 via-transparent to-gauseva-leaf/10"></div>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,117,81,0.1)_0%,rgba(92,140,81,0.05)_100%)]"></div>
+                    <div className="relative z-10 transform transition-transform hover:scale-110 duration-300">
+                      <span className="text-9xl filter drop-shadow-[0_2px_8px_rgba(81,63,44,0.25)]">🐄</span>
+                    </div>
+                  </div>
+                  <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-gauseva-leaf/10 animate-float" style={{ animationDelay: "-2s" }}>
+                    <span className="text-3xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">🍃</span>
                   </div>
                   <h3 className="text-2xl font-semibold mb-2 text-gauseva-bark">Namaste!</h3>
                   <p className="text-muted-foreground">
                     Join our mission to conserve India's precious indigenous cow breeds
                   </p>
+                  <div className="mt-4 flex justify-center space-x-2">
+                    <span className="h-2 w-2 rounded-full bg-gauseva-leaf animate-pulse"></span>
+                    <span className="h-2 w-2 rounded-full bg-gauseva-earth animate-pulse" style={{ animationDelay: "0.2s" }}></span>
+                    <span className="h-2 w-2 rounded-full bg-gauseva-bark animate-pulse" style={{ animationDelay: "0.4s" }}></span>
+                  </div>
                 </div>
               </GlassCard>
               
-              {/* Floating cow illustrations */}
+              {/* Enhanced floating cow illustrations */}
               <div className="absolute -right-16 top-12 w-32 h-32 animate-float" style={{ animationDelay: "-3s" }}>
                 <div className="relative w-full h-full">
-                  <img 
-                    src="https://images.unsplash.com/photo-1465379944081-7f47de8d74ac" 
-                    alt="Cow silhouette" 
-                    className="object-cover w-full h-full rounded-full shadow-lg border-4 border-white"
-                  />
+                  <div className="w-full h-full bg-gradient-to-br from-gauseva-sand to-gauseva-cream rounded-full flex items-center justify-center shadow-lg border-4 border-white overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(240,234,214,0.8)_0%,rgba(217,202,179,0.4)_100%)]"></div>
+                    <span className="text-4xl relative z-10">🐮</span>
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-gauseva-leaf/20 rounded-full flex items-center justify-center border-2 border-white">
+                    <span className="text-xl">🌿</span>
+                  </div>
                 </div>
               </div>
               
               <div className="absolute -left-12 bottom-20 w-24 h-24 animate-float" style={{ animationDelay: "-1.5s" }}>
                 <div className="relative w-full h-full">
-                  <div className="w-full h-full bg-gauseva-cream rounded-full flex items-center justify-center shadow-lg border-4 border-white">
-                    <span className="text-4xl">🐄</span>
+                  <div className="w-full h-full bg-gradient-to-tl from-gauseva-earth/30 to-gauseva-cream rounded-full flex items-center justify-center shadow-lg border-4 border-white overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(240,234,214,0.8)_0%,rgba(140,120,81,0.2)_100%)]"></div>
+                    <span className="text-4xl relative z-10">🐄</span>
                   </div>
+                </div>
+              </div>
+              
+              {/* Additional decorative element */}
+              <div className="absolute -bottom-8 right-16 w-20 h-20 animate-float" style={{ animationDelay: "-4s" }}>
+                <div className="w-full h-full bg-gradient-to-br from-gauseva-leaf/20 to-gauseva-cream/40 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                  <span className="text-3xl">🌾</span>
                 </div>
               </div>
             </div>
