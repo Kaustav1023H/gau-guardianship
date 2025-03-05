@@ -60,8 +60,13 @@ const Hero = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-gauseva-cream to-gauseva-sand rounded-3xl -rotate-6 transform-gpu"></div>
               <GlassCard className="w-full h-full flex items-center justify-center relative z-10 rounded-3xl bg-white/60 backdrop-blur-md shadow-xl border border-white/40 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
                 <div className="text-center p-6">
-                  <div className="w-48 h-48 mx-auto mb-6 bg-gauseva-earth/10 rounded-full flex items-center justify-center animate-float" style={{ animationDelay: "-3s" }}>
-                    <span className="text-7xl">🐄</span>
+                  <div className="relative w-64 h-64 mx-auto mb-6 overflow-hidden rounded-lg">
+                    <img 
+                      src="https://images.unsplash.com/photo-1493962853295-0fd70327578a" 
+                      alt="Indigenous cow" 
+                      className="object-cover w-full h-full transition-transform duration-10000 hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gauseva-bark/30 to-transparent"></div>
                   </div>
                   <h3 className="text-2xl font-semibold mb-2 text-gauseva-bark">Namaste!</h3>
                   <p className="text-muted-foreground">
@@ -69,6 +74,25 @@ const Hero = () => {
                   </p>
                 </div>
               </GlassCard>
+              
+              {/* Floating cow illustrations */}
+              <div className="absolute -right-16 top-12 w-32 h-32 animate-float" style={{ animationDelay: "-3s" }}>
+                <div className="relative w-full h-full">
+                  <img 
+                    src="https://images.unsplash.com/photo-1465379944081-7f47de8d74ac" 
+                    alt="Cow silhouette" 
+                    className="object-cover w-full h-full rounded-full shadow-lg border-4 border-white"
+                  />
+                </div>
+              </div>
+              
+              <div className="absolute -left-12 bottom-20 w-24 h-24 animate-float" style={{ animationDelay: "-1.5s" }}>
+                <div className="relative w-full h-full">
+                  <div className="w-full h-full bg-gauseva-cream rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+                    <span className="text-4xl">🐄</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
