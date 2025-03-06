@@ -48,22 +48,34 @@ const GoogleMapsPage = () => {
   useEffect(() => {
     setServices(getAllUniqueServices());
     
-    initializeGoogleMaps(undefined, () => {
-      if (mapRef.current) {
-        const indiaCenter = { lat: 20.5937, lng: 78.9629 };
-        googleMapRef.current = new window.google.maps.Map(mapRef.current, {
-          center: indiaCenter,
-          zoom: 5,
-          mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-          mapTypeControl: true,
-          streetViewControl: true,
-          fullscreenControl: true,
-        });
+    const loadMap = () => {
+      initializeGoogleMaps(undefined, () => {
+        if (mapRef.current && window.google && window.google.maps) {
+          try {
+            const indiaCenter = { lat: 20.5937, lng: 78.9629 };
+            googleMapRef.current = new window.google.maps.Map(mapRef.current, {
+              center: indiaCenter,
+              zoom: 5,
+              mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+              mapTypeControl: true,
+              streetViewControl: true,
+              fullscreenControl: true,
+            });
+            
+            showMarkersBasedOnTab();
+            setLoading(false);
+          } catch (error) {
+            console.error("Error initializing Google Maps:", error);
+            setLoading(false);
+            toast('Error loading Google Maps. Please try again later.', {
+              position: 'bottom-right',
+            });
+          }
+        }
+      });
+    };
 
-        showMarkersBasedOnTab();
-        setLoading(false);
-      }
-    });
+    loadMap();
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -119,7 +131,7 @@ const GoogleMapsPage = () => {
   }, [activeTab, selectedService]);
 
   const showMarkersBasedOnTab = () => {
-    if (!googleMapRef.current) return;
+    if (!googleMapRef.current || !window.google || !window.google.maps) return;
     
     if (markersRef.current) {
       markersRef.current.forEach(marker => marker.setMap(null));
@@ -179,7 +191,7 @@ const GoogleMapsPage = () => {
           icon: {
             url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22c-4.97 0-9-1.79-9-4v-3.83c0-.79.32-1.54.89-2.09.56-.56 1.33-.89 2.11-.89.78 0 1.55.33 2.11.89.57.55.89 1.3.89 2.09.78 0 1.55.33 2.11.89.57.55.89 1.3.89 2.09.78 0 1.55.33 2.11.89.57.55.89 1.3.89 2.09V22Z"/>
+                <path d="M12 22c-4.97 0-9-1.79-9-4v-3.83c0-.79.32-1.54.89-2.09.56-.56 1.33-.89 2.11-.89.78 0 1.55.33 2.11.89.57.55.89-1.3.89-2.11v-3.89c0-.81-.33-1.56-.89-2.11-.57-.55-1.33-.89-2.11-.89v6.89Z"/>
                 <path d="M19 5.5C19 6.88 17.88 8 16.5 8S14 6.88 14 5.5C14 4.12 16.5 2 16.5 2S19 4.12 19 5.5Z"/>
                 <path d="M13 5.5C13 6.88 11.88 8 10.5 8S8 6.88 8 5.5C8 4.12 10.5 2 10.5 2S13 4.12 13 5.5Z"/>
                 <path d="M7 5.5C7 6.88 5.88 8 4.5 8S2 6.88 2 5.5C2 4.12 4.5 2 4.5 2S7 4.12 7 5.5Z"/>

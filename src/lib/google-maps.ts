@@ -1,3 +1,4 @@
+
 /**
  * Google Maps API integration utilities for GauGuardianship
  */
@@ -105,14 +106,19 @@ export const initializeGoogleMaps = (
 
   // Create script element
   const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
   script.async = true;
   script.defer = true;
-
-  // Set global callback
-  window.initMap = callback || (() => {
-    console.log("Google Maps initialized");
-  });
+  
+  // Set callback function
+  script.onload = () => {
+    if (callback) callback();
+    console.log("Google Maps loaded successfully");
+  };
+  
+  script.onerror = (error) => {
+    console.error("Error loading Google Maps:", error);
+  };
 
   // Append script to document
   document.head.appendChild(script);

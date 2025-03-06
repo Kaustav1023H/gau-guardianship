@@ -8,6 +8,7 @@ import './index.css';
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Failed to find the root element");
 
+// Render the app
 createRoot(rootElement).render(
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
     <App />
