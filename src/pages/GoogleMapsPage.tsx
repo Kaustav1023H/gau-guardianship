@@ -44,35 +44,48 @@ const GoogleMapsPage = () => {
   const [selectedService, setSelectedService] = useState<string>('all');
   const [activeTab, setActiveTab] = useState('sanctuaries');
   const [services, setServices] = useState<string[]>([]);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   useEffect(() => {
     setServices(getAllUniqueServices());
     
     const loadMap = () => {
-      initializeGoogleMaps(undefined, () => {
-        if (mapRef.current && window.google && window.google.maps) {
-          try {
-            const indiaCenter = { lat: 20.5937, lng: 78.9629 };
-            googleMapRef.current = new window.google.maps.Map(mapRef.current, {
-              center: indiaCenter,
-              zoom: 5,
-              mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-              mapTypeControl: true,
-              streetViewControl: true,
-              fullscreenControl: true,
-            });
-            
-            showMarkersBasedOnTab();
-            setLoading(false);
-          } catch (error) {
-            console.error("Error initializing Google Maps:", error);
-            setLoading(false);
-            toast('Error loading Google Maps. Please try again later.', {
-              position: 'bottom-right',
-            });
+      setLoading(true);
+      try {
+        initializeGoogleMaps(undefined, () => {
+          if (mapRef.current && window.google && window.google.maps) {
+            try {
+              const indiaCenter = { lat: 20.5937, lng: 78.9629 };
+              googleMapRef.current = new window.google.maps.Map(mapRef.current, {
+                center: indiaCenter,
+                zoom: 5,
+                mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+                mapTypeControl: true,
+                streetViewControl: true,
+                fullscreenControl: true,
+              });
+              
+              showMarkersBasedOnTab();
+              setLoading(false);
+              setMapError(null);
+            } catch (error: any) {
+              console.error("Error initializing Google Maps:", error);
+              setLoading(false);
+              setMapError(error.message || 'Failed to initialize map');
+              toast('Error loading Google Maps. Please try again later.', {
+                position: 'bottom-right',
+              });
+            }
           }
-        }
-      });
+        });
+      } catch (error: any) {
+        console.error("Error loading Google Maps script:", error);
+        setLoading(false);
+        setMapError(error.message || 'Failed to load map script');
+        toast('Error loading Google Maps. Please try again later.', {
+          position: 'bottom-right',
+        });
+      }
     };
 
     loadMap();
@@ -89,7 +102,7 @@ const GoogleMapsPage = () => {
           const nearest = findNearestSanctuaries(userLoc);
           setNearestSanctuaries(nearest);
           
-          if (googleMapRef.current) {
+          if (googleMapRef.current && window.google && window.google.maps) {
             googleMapRef.current.setCenter(userLoc);
             googleMapRef.current.setZoom(8);
             
@@ -127,7 +140,9 @@ const GoogleMapsPage = () => {
   }, []);
 
   useEffect(() => {
-    showMarkersBasedOnTab();
+    if (googleMapRef.current && window.google && window.google.maps) {
+      showMarkersBasedOnTab();
+    }
   }, [activeTab, selectedService]);
 
   const showMarkersBasedOnTab = () => {
@@ -136,6 +151,8 @@ const GoogleMapsPage = () => {
     if (markersRef.current) {
       markersRef.current.forEach(marker => marker.setMap(null));
     }
+    
+    markersRef.current = [];
     
     if (activeTab === 'sanctuaries') {
       const displayedSanctuaries = selectedService === 'all' 
@@ -232,6 +249,41 @@ const GoogleMapsPage = () => {
         if (googleMapRef.current.getZoom() > 7) googleMapRef.current.setZoom(7); 
         window.google.maps.event.removeListener(listener); 
       });
+    }
+  };
+
+  const handleReloadMap = () => {
+    if (mapRef.current) {
+      setMapError(null);
+      const loadMap = () => {
+        setLoading(true);
+        initializeGoogleMaps(undefined, () => {
+          if (mapRef.current && window.google && window.google.maps) {
+            try {
+              const indiaCenter = { lat: 20.5937, lng: 78.9629 };
+              googleMapRef.current = new window.google.maps.Map(mapRef.current, {
+                center: indiaCenter,
+                zoom: 5,
+                mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+                mapTypeControl: true,
+                streetViewControl: true,
+                fullscreenControl: true,
+              });
+              
+              showMarkersBasedOnTab();
+              setLoading(false);
+            } catch (error) {
+              console.error("Error initializing Google Maps:", error);
+              setLoading(false);
+              setMapError('Failed to initialize map');
+              toast('Error loading Google Maps. Please try again later.', {
+                position: 'bottom-right',
+              });
+            }
+          }
+        });
+      };
+      loadMap();
     }
   };
 
@@ -340,6 +392,23 @@ const GoogleMapsPage = () => {
                     <div className="flex flex-col items-center">
                       <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                       <p className="mt-4 text-muted-foreground">Loading map...</p>
+                    </div>
+                  </div>
+                ) : mapError ? (
+                  <div className="h-full flex items-center justify-center">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 text-destructive mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="15" y1="9" x2="9" y2="15" />
+                          <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg>
+                      </div>
+                      <p className="mb-2 text-destructive font-medium">Failed to load Google Maps</p>
+                      <p className="text-muted-foreground text-sm mb-4 max-w-md">
+                        There was an error loading the map. This might be due to network issues or an error with the Google Maps API.
+                      </p>
+                      <Button onClick={handleReloadMap}>Reload Map</Button>
                     </div>
                   </div>
                 ) : (
