@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/layout/Navbar';
@@ -20,7 +21,8 @@ import {
   MapPin, 
   Filter, 
   Search, 
-  Leaf 
+  Leaf,
+  RefreshCw 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -36,6 +38,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const GoogleMapsPage = () => {
   const { toast: hookToast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const [userLocation, setUserLocation] = useState<Location | null>(null);
   const [nearestSanctuaries, setNearestSanctuaries] = useState<Location[]>([]);
   const mapRef = useRef<HTMLDivElement>(null);
@@ -45,119 +48,176 @@ const GoogleMapsPage = () => {
   const [activeTab, setActiveTab] = useState('sanctuaries');
   const [services, setServices] = useState<string[]>([]);
   const [mapError, setMapError] = useState<string | null>(null);
+  const mapInitialized = useRef(false);
 
   useEffect(() => {
+    console.log("Component mounted, initializing map");
     setServices(getAllUniqueServices());
-    
-    const loadMap = () => {
-      setLoading(true);
-      try {
-        initializeGoogleMaps(undefined, () => {
-          if (mapRef.current && window.google && window.google.maps) {
-            try {
-              const indiaCenter = { lat: 20.5937, lng: 78.9629 };
-              googleMapRef.current = new window.google.maps.Map(mapRef.current, {
-                center: indiaCenter,
-                zoom: 5,
-                mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-                mapTypeControl: true,
-                streetViewControl: true,
-                fullscreenControl: true,
-              });
-              
-              showMarkersBasedOnTab();
-              setLoading(false);
-              setMapError(null);
-            } catch (error: any) {
-              console.error("Error initializing Google Maps:", error);
-              setLoading(false);
-              setMapError(error.message || 'Failed to initialize map');
-              toast('Error loading Google Maps. Please try again later.', {
-                position: 'bottom-right',
-              });
-            }
-          }
-        });
-      } catch (error: any) {
-        console.error("Error loading Google Maps script:", error);
-        setLoading(false);
-        setMapError(error.message || 'Failed to load map script');
-        toast('Error loading Google Maps. Please try again later.', {
-          position: 'bottom-right',
-        });
-      }
-    };
-
-    loadMap();
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLoc = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          setUserLocation(userLoc);
-          
-          const nearest = findNearestSanctuaries(userLoc);
-          setNearestSanctuaries(nearest);
-          
-          if (googleMapRef.current && window.google && window.google.maps) {
-            googleMapRef.current.setCenter(userLoc);
-            googleMapRef.current.setZoom(8);
-            
-            new window.google.maps.Marker({
-              position: userLoc,
-              map: googleMapRef.current,
-              icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: '#4285F4',
-                fillOpacity: 1,
-                strokeColor: '#FFFFFF',
-                strokeWeight: 2,
-              },
-              title: 'Your Location'
-            });
-          }
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          hookToast({
-            title: 'Location access denied',
-            description: 'Using default view of India',
-            variant: 'default',
-          });
-        }
-      );
-    }
+    loadGoogleMaps();
 
     return () => {
-      if (markersRef.current) {
-        markersRef.current.forEach(marker => marker.setMap(null));
-      }
+      // Clean up markers when component unmounts
+      clearMarkers();
     };
   }, []);
 
+  // Handle location tracking
   useEffect(() => {
-    if (googleMapRef.current && window.google && window.google.maps) {
+    if (mapLoaded && navigator.geolocation) {
+      console.log("Map loaded, trying to get user location");
+      getUserLocation();
+    }
+  }, [mapLoaded]);
+
+  // Handle tab or service selection changes
+  useEffect(() => {
+    if (mapLoaded && googleMapRef.current) {
+      console.log("Tab or service changed, updating markers");
       showMarkersBasedOnTab();
     }
-  }, [activeTab, selectedService]);
+  }, [activeTab, selectedService, mapLoaded]);
+
+  const loadGoogleMaps = () => {
+    setLoading(true);
+    setMapError(null);
+    console.log("Starting Google Maps initialization");
+    
+    try {
+      if (window.google && window.google.maps && mapRef.current) {
+        console.log("Google Maps already loaded, creating map directly");
+        createMap();
+        return;
+      }
+
+      initializeGoogleMaps(undefined, () => {
+        console.log("Google Maps script loaded, creating map");
+        createMap();
+      });
+    } catch (error: any) {
+      console.error("Error during map initialization:", error);
+      setLoading(false);
+      setMapError(error.message || 'Failed to load map script');
+      toast('Error loading Google Maps. Please try again later.', {
+        position: 'bottom-right',
+      });
+    }
+  };
+
+  const createMap = () => {
+    if (!mapRef.current || !window.google || !window.google.maps) {
+      console.error("Cannot create map: DOM element or Google Maps not available");
+      setLoading(false);
+      setMapError('Google Maps API not available');
+      return;
+    }
+
+    try {
+      console.log("Creating Google Map instance");
+      const indiaCenter = { lat: 20.5937, lng: 78.9629 };
+      
+      googleMapRef.current = new window.google.maps.Map(mapRef.current, {
+        center: indiaCenter,
+        zoom: 5,
+        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+        mapTypeControl: true,
+        streetViewControl: true,
+        fullscreenControl: true,
+      });
+      
+      // Listen for map idle to confirm map is fully loaded
+      window.google.maps.event.addListenerOnce(googleMapRef.current, 'idle', () => {
+        console.log("Map fully loaded and idle");
+        setMapLoaded(true);
+        setLoading(false);
+      });
+      
+      // Handle map load error
+      window.google.maps.event.addListenerOnce(googleMapRef.current, 'error', () => {
+        console.error("Map failed to load properly");
+        setMapError('Map failed to initialize correctly');
+        setLoading(false);
+      });
+
+    } catch (error: any) {
+      console.error("Error creating map:", error);
+      setLoading(false);
+      setMapError(error.message || 'Failed to initialize map');
+      toast('Error creating Google Maps. Please try again later.', {
+        position: 'bottom-right',
+      });
+    }
+  };
+
+  const getUserLocation = () => {
+    if (!navigator.geolocation) {
+      console.log("Geolocation not supported");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log("Got user location:", position.coords);
+        const userLoc = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        setUserLocation(userLoc);
+        
+        const nearest = findNearestSanctuaries(userLoc);
+        setNearestSanctuaries(nearest);
+        
+        if (googleMapRef.current && window.google && window.google.maps) {
+          googleMapRef.current.setCenter(userLoc);
+          googleMapRef.current.setZoom(8);
+          
+          new window.google.maps.Marker({
+            position: userLoc,
+            map: googleMapRef.current,
+            icon: {
+              path: window.google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#4285F4',
+              fillOpacity: 1,
+              strokeColor: '#FFFFFF',
+              strokeWeight: 2,
+            },
+            title: 'Your Location'
+          });
+        }
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        toast('Location access denied. Using default view of India.', {
+          position: 'bottom-right',
+        });
+      }
+    );
+  };
+
+  const clearMarkers = () => {
+    if (markersRef.current && markersRef.current.length > 0) {
+      console.log("Clearing existing markers");
+      markersRef.current.forEach(marker => {
+        if (marker) marker.setMap(null);
+      });
+      markersRef.current = [];
+    }
+  };
 
   const showMarkersBasedOnTab = () => {
-    if (!googleMapRef.current || !window.google || !window.google.maps) return;
-    
-    if (markersRef.current) {
-      markersRef.current.forEach(marker => marker.setMap(null));
+    if (!googleMapRef.current || !window.google || !window.google.maps) {
+      console.log("Cannot show markers: map or Google Maps not available");
+      return;
     }
     
-    markersRef.current = [];
+    clearMarkers();
     
     if (activeTab === 'sanctuaries') {
       const displayedSanctuaries = selectedService === 'all' 
         ? cowSanctuaries 
         : filterSanctuariesByService(selectedService);
+      
+      console.log(`Showing ${displayedSanctuaries.length} sanctuary markers`);
       
       markersRef.current = displayedSanctuaries.map(sanctuary => {
         const marker = new window.google.maps.Marker({
@@ -199,6 +259,8 @@ const GoogleMapsPage = () => {
         return marker;
       });
     } else if (activeTab === 'breeds') {
+      console.log(`Showing ${indigenousCowBreeds.length} breed markers`);
+      
       markersRef.current = indigenousCowBreeds.map(breed => {
         const marker = new window.google.maps.Marker({
           position: { lat: breed.lat, lng: breed.lng },
@@ -239,52 +301,28 @@ const GoogleMapsPage = () => {
     }
     
     if (markersRef.current.length > 0 && googleMapRef.current) {
-      const bounds = new window.google.maps.LatLngBounds();
-      markersRef.current.forEach(marker => {
-        bounds.extend(marker.getPosition());
-      });
-      googleMapRef.current.fitBounds(bounds);
-      
-      const listener = window.google.maps.event.addListener(googleMapRef.current, "idle", function() { 
-        if (googleMapRef.current.getZoom() > 7) googleMapRef.current.setZoom(7); 
-        window.google.maps.event.removeListener(listener); 
-      });
+      try {
+        const bounds = new window.google.maps.LatLngBounds();
+        markersRef.current.forEach(marker => {
+          bounds.extend(marker.getPosition());
+        });
+        googleMapRef.current.fitBounds(bounds);
+        
+        const listener = window.google.maps.event.addListener(googleMapRef.current, "idle", function() { 
+          if (googleMapRef.current.getZoom() > 7) googleMapRef.current.setZoom(7); 
+          window.google.maps.event.removeListener(listener); 
+        });
+      } catch (error) {
+        console.error("Error setting map bounds:", error);
+      }
     }
   };
 
   const handleReloadMap = () => {
-    if (mapRef.current) {
-      setMapError(null);
-      const loadMap = () => {
-        setLoading(true);
-        initializeGoogleMaps(undefined, () => {
-          if (mapRef.current && window.google && window.google.maps) {
-            try {
-              const indiaCenter = { lat: 20.5937, lng: 78.9629 };
-              googleMapRef.current = new window.google.maps.Map(mapRef.current, {
-                center: indiaCenter,
-                zoom: 5,
-                mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-                mapTypeControl: true,
-                streetViewControl: true,
-                fullscreenControl: true,
-              });
-              
-              showMarkersBasedOnTab();
-              setLoading(false);
-            } catch (error) {
-              console.error("Error initializing Google Maps:", error);
-              setLoading(false);
-              setMapError('Failed to initialize map');
-              toast('Error loading Google Maps. Please try again later.', {
-                position: 'bottom-right',
-              });
-            }
-          }
-        });
-      };
-      loadMap();
-    }
+    console.log("Manually reloading map");
+    clearMarkers();
+    setMapLoaded(false);
+    loadGoogleMaps();
   };
 
   const handleShowDirections = (sanctuary: Location) => {
@@ -408,7 +446,10 @@ const GoogleMapsPage = () => {
                       <p className="text-muted-foreground text-sm mb-4 max-w-md">
                         There was an error loading the map. This might be due to network issues or an error with the Google Maps API.
                       </p>
-                      <Button onClick={handleReloadMap}>Reload Map</Button>
+                      <Button onClick={handleReloadMap} className="flex items-center gap-2">
+                        <RefreshCw className="h-4 w-4" />
+                        Reload Map
+                      </Button>
                     </div>
                   </div>
                 ) : (

@@ -93,15 +93,39 @@ export const indigenousCowBreeds = [
   { breed: "Kangayam", lat: 10.5889, lng: 77.5703, region: "Tamil Nadu", milkYield: "3-6 liters/day", description: "Sturdy work animal" }
 ];
 
+// Status variable to track if map is loading or has been loaded
+let mapsLoadingStatus = 'not_loaded'; // 'not_loaded', 'loading', 'loaded', 'error'
+let loadCallbacks: Array<() => void> = [];
+
 // Initialize the Google Maps API
 export const initializeGoogleMaps = (
   apiKey: string = "AIzaSyC8S0v8H4NT76nd3QS6ELI7gHzzhxBMj1o", // Public API key with restrictions
   callback?: () => void
 ): void => {
-  // Skip if Google Maps is already loaded
+  // If maps are already loaded, just call the callback
   if (window.google && window.google.maps) {
-    if (callback) callback();
+    console.log("Google Maps already loaded, calling callback directly");
+    if (callback) {
+      callback();
+    }
     return;
+  }
+
+  // If already loading, just add callback to queue
+  if (mapsLoadingStatus === 'loading') {
+    console.log("Google Maps already loading, adding callback to queue");
+    if (callback) {
+      loadCallbacks.push(callback);
+    }
+    return;
+  }
+
+  // Set status to loading
+  console.log("Starting to load Google Maps API");
+  mapsLoadingStatus = 'loading';
+  
+  if (callback) {
+    loadCallbacks.push(callback);
   }
 
   // Create script element
@@ -110,14 +134,40 @@ export const initializeGoogleMaps = (
   script.async = true;
   script.defer = true;
   
-  // Set callback function
+  // Set callback function for successful load
   script.onload = () => {
-    if (callback) callback();
     console.log("Google Maps loaded successfully");
+    mapsLoadingStatus = 'loaded';
+    
+    // Execute all callbacks in queue
+    loadCallbacks.forEach(cb => {
+      try {
+        cb();
+      } catch (err) {
+        console.error("Error in Google Maps callback:", err);
+      }
+    });
+    
+    // Clear the callback queue
+    loadCallbacks = [];
   };
   
+  // Set error handler
   script.onerror = (error) => {
     console.error("Error loading Google Maps:", error);
+    mapsLoadingStatus = 'error';
+    
+    // Inform all callbacks about the error
+    loadCallbacks.forEach(cb => {
+      try {
+        cb();
+      } catch (err) {
+        console.error("Error in Google Maps error callback:", err);
+      }
+    });
+    
+    // Clear the callback queue
+    loadCallbacks = [];
   };
 
   // Append script to document
@@ -190,6 +240,11 @@ export const getAllUniqueServices = (): string[] => {
   });
   
   return Array.from(allServices);
+};
+
+// Check if Google Maps is loaded
+export const isGoogleMapsLoaded = (): boolean => {
+  return !!window.google && !!window.google.maps;
 };
 
 // Add type definition for the global window object
